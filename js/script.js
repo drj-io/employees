@@ -150,6 +150,7 @@ function render_employee_table(data){
 
     $(".map").click(function(){
         console.log("Map clicked!");
+        // Run map location
         map_location(employees[$(this).attr("index")].address);
     })
 
@@ -170,6 +171,9 @@ function render_employee_table(data){
 }
 
 
+
+
+// Map location - display address on the map.
 function map_location(address){
     getGeo(address, function(error, location){
         map_initialize(location.lat, location.lng);
@@ -191,16 +195,17 @@ function map_initialize(lat,lng)
 
 
     // display the marker
-
     var myLatlng = new google.maps.LatLng(lat,lng);
     var marker = new google.maps.Marker({
       position: myLatlng,
       map: map,
-      title: 'Hello World!'
+      title: 'Here!'
   });
 }
 
 
+
+// Nate's getGeo function
  function getGeo(address, cb) {
         var api = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
         var key = 'AIzaSyBr0dQddZcPFvrPJwZfc-JEFlQzbbkr5sw';
