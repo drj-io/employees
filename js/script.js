@@ -1,13 +1,14 @@
 var employees = [
         {
             name : "David",
-            phone: "800-555-5555"
-
+            phone: "800-555-5555",
+            address: '222 E 4th Ave loveland, co 80537'
         },
 
         {
             name : "Bob",
-            phone: "303-123-4567"
+            phone: "303-123-4567",
+            address: " 2190 Miller Dr, Longmont, CO 80501"
 
         }
     ];
@@ -67,6 +68,8 @@ function render_edit_box(type, employee, index){
 
         pre_name = employee.name;
         pre_phone = employee.phone;
+
+
     }
 
 
@@ -78,6 +81,8 @@ function render_edit_box(type, employee, index){
     
     $('#edit_box').html(html); 
 
+
+    $('#edit_box').slideDown();
 
     $('#saveit').click(function(){
         var e = { 
@@ -104,20 +109,15 @@ function update_employee(data, index){
     // employees[index].name = data.name;
     // employees[index].phone = data.phone; 
 
-
     employees[index] = data; 
     render_employee_table(employees);
 }
 
 function add_employee(data){
-
         
         employees.push(data);
         render_employee_table(employees)
          
-       
-
-
 }
 
 
@@ -135,8 +135,10 @@ function render_employee_table(data){
         html += "<tr>";
         html += "<td>"+ employee.name +"</td>";
         html += "<td>"+ employee.phone +"</td>";
+        html += "<td>"+ employee.address +"</td>";
         html += "<td><button class='delete' index='"+index+"'>Del</button></td>";
         html += "<td><button index="+ index +" class='edit'>Edit</button></td>";
+        html += "<td><button index="+ index +" class='map'>Map</button></td>"
 
         html += "</tr>";
     })
@@ -146,6 +148,11 @@ function render_employee_table(data){
 
     $("#employee_list").html(html); 
 
+    $(".map").click(function(){
+        console.log("Map clicked!");
+        map_location(employees[$(this).attr("index")].address);
+    })
+
     $(".delete").click(function(){
        console.log('delete clicked');
        terminate_employee($(this).attr("index"));
@@ -154,14 +161,57 @@ function render_employee_table(data){
     $('.edit').click(function(){
         console.log('clicked to update existing');
 
-
          render_edit_box('edit', employees[$(this).attr("index")] , $(this).attr("index"));
-   
+    });
 
 
-    })
-
-    
 
 
 }
+
+
+function map_location(address){
+    getGeo(address, function(error, location){
+        map_initialize(location.lat, location.lng);
+    })
+}
+
+function map_initialize(lat,lng)
+{
+    // setup the map
+    var mapProp = {
+      center:new google.maps.LatLng(lat,lng),
+      zoom:15,
+      mapTypeId:google.maps.MapTypeId.ROADMAP
+      };
+
+    // display the map
+    var map=new google.maps.Map(document.getElementById("display_map")
+      ,mapProp);
+
+
+    // display the marker
+
+    var myLatlng = new google.maps.LatLng(lat,lng);
+    var marker = new google.maps.Marker({
+      position: myLatlng,
+      map: map,
+      title: 'Hello World!'
+  });
+}
+
+
+ function getGeo(address, cb) {
+        var api = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
+        var key = 'AIzaSyBr0dQddZcPFvrPJwZfc-JEFlQzbbkr5sw';
+ 
+        var url = api + address.replace(/\s/g, '+') + '&key=' + key;
+ 
+        $.get(url, function(data){
+          if(data.status && data.status === 'OK'){
+            cb(null, data.results[0].geometry.location);
+          } else {
+            cb(data);
+          }
+        })
+      }
